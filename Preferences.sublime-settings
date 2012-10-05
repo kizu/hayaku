@@ -9,6 +9,9 @@
 ,   "hayaku_CSS_whitespace_block_end_before":   "\n\t"
 ,   "hayaku_CSS_whitespace_block_end_after":    ""
 
+    // Basic autosave feature, set `true` to enable it.
+,   "hayaku_autosave_enabled": false
+
 // Unused settings, work in progress
 
     // Prefixes
