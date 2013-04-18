@@ -1,4 +1,4 @@
-# Hayaku
+# Hayaku <sup>[1.3.3](https://github.com/hayaku/hayaku/blob/master/CHANGELOG.md)</sup>
 
 Hayaku is a bundle of useful scripts aiming for rapid front-end web development.
 
@@ -13,13 +13,15 @@ The main aim of Hayaku is to create the fastest way to write and maintain CSS co
         - [Fuzzy CSS property abbreviations](#fuzzy-css-property-abbreviations)
         - [Smart CSS values abbreviations](#smart-css-values-abbreviations)
         - [Numeric values in abbreviations](#numeric-values-in-abbreviations)
-        - [Color values in abbreviations](#color-values-in-abbreviations)
+        - [Color values in abbreviations](#color-values-in-abbreviations) with [RGBA values](#rgba-values)
         - [Importance modifier](#importance-modifier)
-        - [Some default values](#some-default-values)
+        - [Default values](#Default-values)
+        - [Clipboard defaults](#clipoard-defaults)
     - [Postexpands](#postexpands)
         - [Simple property postexpands](#simple-property-postexpands)
         - [Postexpands for units](#postexpands-for-units)
         - [Postexpands for colors](#postexpands-for-colors)
+        - [Postexpand for importance](#postexpand-for-importance)
     - [Creating new CSS rule blocks](#creating-new-css-rule-blocks)
     - [Inline comments](#inline-comments)
     <br/><br/>
@@ -27,9 +29,15 @@ The main aim of Hayaku is to create the fastest way to write and maintain CSS co
 3. [Settings and Preferences](#settings-and-preferences)
     - [Autoguessing the code style](#autoguessing-the-code-style)
     - [Single code style](#single-code-style)
+    - [Automatic new line after expand](#automatic-new-line-after-expand)
+    - [Quotes and URLs](#quotes-and-urls)
+    - [Units for unitless values](#units-for-unitless-values)
     - [Prefixes options](#prefixes-options)
-    - [The aligning for the prefixes](#the-aligning-for-the-prefixes)
-    - [Using only specific prefixes](#using-only-specific-prefixes)
+        - [The aligning for the prefixes](#the-aligning-for-the-prefixes)
+        - [Using only specific prefixes](#using-only-specific-prefixes)
+    - [Options for colors](#options-for-colors)
+        - [Colors' case](#colors-case)
+        - [Shorthand colors](#shorthand-colors)
     <br/><br/>
 
 4. [Using Hayaku with CSS Preprocessors](#using-hayaku-with-css-preprocessors)
@@ -39,13 +47,13 @@ The main aim of Hayaku is to create the fastest way to write and maintain CSS co
 
 # Install Hayaku for [Sublime Text](http://www.sublimetext.com/2)
 
-Right now Hayaku is available only for Sublime Text, but when it would be complete, we would port it to some other editors.
+Right now Hayaku is available only for Sublime Text (even for third version!), but when it would be complete, we would port it to some other editors.
 
 #### Using [Package Control](http://wbond.net/sublime_packages/package_control):
 
 1. Run `Package Control: Install Package` command
 2. Search for `Hayaku - tools for writing CSS faster` (`Hayaku` should be enough) and wait for it to be installed
-3. Restart Sublime Text (probably won't be required)
+3. Restart Sublime Text (required to make default settings for different syntaxes to work)
 
 #### Or manually, using git:
 
@@ -54,6 +62,7 @@ Clone repository into Packages directory (can be found using `Preferences: Brows
 git clone git://github.com/hayaku/hayaku.git
 ```
 
+And then restart Sublime Text.
 
 # Features
 
@@ -106,7 +115,18 @@ Actually, you can not only expand strings and numbers, you can expand even color
 
 And, of course, this works everywhere you would expect colors to work, so `brc0` would expand to `border-right-color: #000;`
 
+#### RGBA values
 
+There is also a way to expand `rgba` values for colors — you can either use rgba's alpha after the dot, either use hexadecimal alpha after the full color, if you'd like. This would look like this:
+
+- `c0.5` → `color: rgba(0,0,0,.5)`
+- `cF.2` → `color: rgba(255,255,255,.2)`
+- `cABCD` → `color: rgba(170,187,204,0.87)`
+- `cABC80` → `color: rgba(170,187,204,0.5)`
+
+You can also write just the dot and get the placeholder on the `alpha` part of the `rgba`:
+
+- `cF00.` → `color: rgba(255,0,0,.[5])`
 
 ### Importance modifier
 
@@ -127,9 +147,29 @@ If you need some vendor prefixes, Hayaku could provide them!
 
 Right now there are no prefixes for values (like gradients etc.) but someday they'd be there.
 
-### Some default values
+### Default values
 
 If you'd write something that is only a property (as Hayaku would guess), Hayaku would insert a snippet with some default value already selected for you, so you could start writing your own value to replace it or to press `tab` again to keep it and move forward. So, writing `w` would actually expand to `width: [100%]` (braces mean that this value is selected by default).
+
+### Clipboard defaults
+
+Aside from the normal defaults, Hayaku would try to use your clipboard for getting the value from it as the default value.
+
+Right now it's available for colors and images urls:
+
+- If you'd have color in hexadecimal, rgb(a) or hsl(a) in your clipboard, Hayaku would use it as a default shown value. That would work even is the value is hashless, so if you've copied `808080` from anywhere, then on expanding `c` you would get `color: #[808080]`.
+
+- If you'd have an image url in your clipboard (even relative, Hayaku would look at extension), you'd have it added as default values along inside an `url()`. Also, see [quotes and URLs](#quotes-and-urls) settings on how to adjust the quoting of the inserted url if you want.
+
+#### Configure clipboard defaults
+
+Hayaku offers a setting to set up the behavior of the Clipboard defaults: `hayaku_CSS_clipboard_defaults`. It is an array of the value types that Hayaku could accept as the defaults. So, to disable all the clipboard defaults you could use this setting:
+
+``` JSON
+{
+    "hayaku_CSS_clipboard_defaults": [""]
+}
+```
 
 ## Postexpands
 
@@ -167,6 +207,14 @@ Another somewhat obscure (but helpful) feature is postexpand for `rgba` colors. 
 
 There are a lot of things we could improve there, so stay tuned.
 
+### Postexpand for importance
+
+If you'd like to make some value important, you could just write the first symbols of `!important` keyword and Hayaku would autocomplete it for you.
+
+### Disabling postexpands
+
+If you'd wish to disable postexpands at all for some reason, you could use this setting for this: `"hayaku_CSS_disable_postexpand": true`
+
 ## Creating new CSS rule blocks
 
 In Hayaku there is a simple but powerful feature: when you wrote a selector, you could just press `CMD+Enter` to get a block for writing CSS here.
@@ -175,7 +223,9 @@ In Hayaku there is a simple but powerful feature: when you wrote a selector, you
 
 Another little helper: write `//` in CSS to have it expanded to `/* | */` (where the pipe is a caret placement).
 
-This feature is in development, we plan on adding a lot of things to make commenting fun.
+If you'd wish to disable inline comments, you could use this setting: `"hayaku_CSS_disable_inline_comment": true`
+
+*This feature is in development, we plan on adding a lot of things to make commenting fun.*
 
 # Settings and Preferences
 
@@ -222,6 +272,40 @@ The names speak for themselves there.
 
 The important thing is that the single code style settings always override the autoguessed one.
 
+## Automatic new line after expand
+
+That's somewhat experimental feature, that is disabled by default. To enable it use this setting:
+
+``` JSON
+{
+    "hayaku_CSS_newline_after_expand": true
+}
+```
+
+With this setting you could save a bit more time, cause Hayaku would add a new line after you expand your abbreviations. The only downside is that you'll need to delete a line when you finish with the selector or when you're inserting something between existing lines.
+
+## Quotes and URLs
+
+By default Hayaku uses double quotes for different CSS stuff (like `content: ""`). You can change this by setting this:
+
+``` JSON
+{
+    "hayaku_CSS_syntax_quote_symbol": "'"
+}
+```
+
+Also, by default the image urls wouldn't have quotes in CSS-like syntaxes and would have them in Sass or Stylus, you can override this automatic behaviour by setting `hayaku_CSS_syntax_url_quotes` setting to `true` or `false`.
+
+## Units for unitless values
+
+By default Hayaku won't add `em` or `px` after values for properties like `line-height`. If you're not using unit less values for those properties, you could enable them like this:
+
+``` JSON
+{
+    "hayaku_CSS_units_for_unitless_numbers": true
+}
+```
+
 ## Prefixes options
 
 If you don't want to use any prefixes at all (as if you're using some mixins for it in Stylus, or use prefix-free), you can disable them with that option:
@@ -232,7 +316,7 @@ If you don't want to use any prefixes at all (as if you're using some mixins for
 }
 ```
 
-## The aligning for the prefixes
+### The aligning for the prefixes
 
 By default Hayaku aligns expanded prefixed properties in this nice way:
 
@@ -256,7 +340,7 @@ However, if you'd want to expand such properties left aligned, set
 }
 ```
 
-## Using only specific prefixes
+### Using only specific prefixes
 
 This is not something that you would use often, but if you'd need, you could use only prefixes for browsers you want. There are two settigns for this:
 
@@ -271,6 +355,39 @@ This is not something that you would use often, but if you'd need, you could use
 - when `hayaku_CSS_prefixes_no_unprefixed` is set to `True`, such prefixed clusters won't contain the official unprefixed variant.
 
 Right now there is no easy way to adjust prefixes per property, but it would be there in a near feature, so stay tuned!
+
+## Options for colors
+
+Note that those settings would work for every pre-set and expanded colors, like the default color values, but they won't work for postexpands due to their mechanics.
+
+### Colors' case
+
+You can tell Hayaku if you prefer `lowercase` or `uppercase` for color values, so it would change the case while expanding abbreviations like `c#f`, `cF` etc.
+
+The default value is `uppercase`, so `c#f` would become `color: #FFF`. If you'd like to change that to `lowercase`, you can set it this way:
+
+``` JSON
+{
+    "hayaku_CSS_colors_case": "lowercase"
+}
+```
+
+And if you'd like it to leave the color as is, you could use value `initial`.
+
+### Shorthand colors
+
+By default Hayaku shortens the colous, so if there could be `#FFFFFF` expanded, Hayaku would make it `#FFF`.
+
+However, if you wish, you can redefine this behavior using this setting:
+
+``` JSON
+{
+    "hayaku_CSS_colors_length": "long"
+}
+```
+
+That would make `cF` to be expanded into `color: #FFFFFF`.
+
 
 # Using Hayaku with CSS Preprocessors
 
